@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ФанфикХаб - Платформа для фанфиков</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Главная страница -->
+        <div id="main-page" class="page active">
+            <header>
+                <h1><i class="fas fa-book"></i> ФанфикХаб</h1>
+                <p class="subtitle">Читайте и создавайте фанфики без регистрации</p>
+            </header>
+
+            <div class="filters">
+                <input type="text" id="search-input" placeholder="Поиск по названию или автору...">
+                <select id="genre-filter">
+                    <option value="">Все жанры</option>
+                    <option value="Романтика">Романтика</option>
+                    <option value="Драма">Драма</option>
+                    <option value="Приключения">Приключения</option>
+                    <option value="Фэнтези">Фэнтези</option>
+                    <option value="Научная фантастика">Научная фантастика</option>
+                    <option value="Гет">Гет</option>
+                    <option value="Слэш">Слэш</option>
+                    <option value="Фемслэш">Фемслэш</option>
+                </select>
+                <select id="age-filter">
+                    <option value="">Все возраста</option>
+                    <option value="0+">0+</option>
+                    <option value="12+">12+</option>
+                    <option value="16+">16+</option>
+                    <option value="18+">18+</option>
+                </select>
+            </div>
+
+            <div id="fanfics-container" class="fanfics-grid">
+                <!-- Фанфики будут загружены через JavaScript -->
+                <div class="loading">Загрузка фанфиков...</div>
+            </div>
+
+            <div class="floating-button-container">
+                <button id="create-btn" class="floating-button">
+                    <i class="fas fa-pen"></i> Написать произведение
+                </button>
+            </div>
+        </div>
+
+        <!-- Страница создания -->
+        <div id="create-page" class="page">
+            <div class="create-header">
+                <button id="back-btn" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Назад
+                </button>
+                <h2>Создание фанфика</h2>
+            </div>
+
+            <div class="create-container">
+                <div class="sidebar">
+                    <div class="form-group">
+                        <label for="fanfic-title">Название произведения:</label>
+                        <input type="text" id="fanfic-title" placeholder="Введите название">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="author-name">Имя автора:</label>
+                        <input type="text" id="author-name" placeholder="Ваше имя или псевдоним">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="genre">Жанр:</label>
+                        <select id="genre">
+                            <option value="Романтика">Романтика</option>
+                            <option value="Драма">Драма</option>
+                            <option value="Приключения">Приключения</option>
+                            <option value="Фэнтези">Фэнтези</option>
+                            <option value="Научная фантастика">Научная фантастика</option>
+                            <option value="Гет">Гет</option>
+                            <option value="Слэш">Слэш</option>
+                            <option value="Фемслэш">Фемслэш</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="age-rating">Возрастная категория:</label>
+                        <select id="age-rating">
+                            <option value="0+">0+</option>
+                            <option value="12+">12+</option>
+                            <option value="16+">16+</option>
+                            <option value="18+">18+</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Теги (максимум 3):</label>
+                        <div class="tags-container">
+                            <button type="button" class="tag-btn" data-tag="Хороший фанфик">👍 Хороший фанфик</button>
+                            <button type="button" class="tag-btn" data-tag="18+">🔞 18+</button>
+                            <button type="button" class="tag-btn" data-tag="Смешной">😂 Смешной</button>
+                            <button type="button" class="tag-btn" data-tag="Грустный">😢 Грустный</button>
+                            <button type="button" class="tag-btn" data-tag="Драматичный">🎭 Драматичный</button>
+                        </div>
+                        <div id="selected-tags" class="selected-tags"></div>
+                    </div>
+
+                    <button id="submit-btn" class="submit-btn">
+                        <i class="fas fa-paper-plane"></i> Отправить на рассмотрение
+                    </button>
+
+                    <div class="info-box">
+                        <p><i class="fas fa-info-circle"></i> После отправки фанфик будет проверен модератором в Telegram</p>
+                    </div>
+                </div>
+
+                <div class="editor-container">
+                    <div class="chapter-header">
+                        <div class="chapter-title-container">
+                            <label>Название главы:</label>
+                            <input type="text" id="chapter-title" placeholder="Глава 1: Начало" value="Глава 1">
+                        </div>
+                        <button type="button" id="add-chapter-btn" class="add-chapter-btn">
+                            <i class="fas fa-plus"></i> Добавить главу
+                        </button>
+                    </div>
+
+                    <div class="chapters-sidebar">
+                        <h3><i class="fas fa-list"></i> Главы</h3>
+                        <div id="chapters-list">
+                            <div class="chapter-item active" data-index="0">
+                                <span>Глава 1</span>
+                                <button type="button" class="delete-chapter-btn"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="editor-main">
+                        <textarea id="content-editor" placeholder="Начните писать ваш фанфик здесь..."></textarea>
+                        <div class="editor-stats">
+                            <span id="char-count">0 символов</span>
+                            <span id="word-count">0 слов</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно отправки -->
+    <div id="submit-modal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-paper-plane"></i> Отправка на модерацию</h3>
+            <p>Ваш фанфик отправлен на проверку модератору в Telegram. Вы получите уведомление, когда он будет одобрен.</p>
+            <p id="submission-id">ID отправки: <span id="submission-id-value"></span></p>
+            <div class="modal-buttons">
+                <button id="modal-ok-btn" class="modal-btn">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно просмотра фанфика -->
+    <div id="view-modal" class="modal">
+        <div class="modal-content large-modal">
+            <button class="close-modal">&times;</button>
+            <div id="fanfic-content">
+                <!-- Контент фанфика будет загружен здесь -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
