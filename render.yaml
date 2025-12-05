@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: fanfic-hub
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 18.17.0
+      - key: PORT
+        value: 10000
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_ADMIN_CHAT_ID
+        sync: false
+      - key: ADMIN_TOKEN
+        sync: false
+      - key: SITE_URL
+        generateValue: true
+    autoDeploy: true
