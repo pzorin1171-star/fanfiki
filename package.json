@@ -24,4 +24,5 @@
   "keywords": ["fanfic", "stories", "writing", "telegram", "moderation"],
   "author": "FanficHub Team",
   "license": "MIT"
+  "axios": "^1.6.0"
 }
