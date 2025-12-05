@@ -13,7 +13,10 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "sqlite3": "^5.1.6",
-    "node-telegram-bot-api": "^0.61.0"
+    "node-telegram-bot-api": "^0.61.0",
+    "axios": "^1.6.0",
+    "express-session": "^1.17.3",
+    "bcryptjs": "^2.4.3"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
@@ -24,5 +27,4 @@
   "keywords": ["fanfic", "stories", "writing", "telegram", "moderation"],
   "author": "FanficHub Team",
   "license": "MIT"
-  "axios": "^1.6.0"
 }
