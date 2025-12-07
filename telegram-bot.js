@@ -100,7 +100,6 @@ const initTelegramBot = () => {
 
 *Просмотры:* ${stats.total_views || 0}
 *Лайки:* ${stats.total_likes || 0}
-*Слова:* ${stats.total_words || 0}
         `.trim();
         
         bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
@@ -137,19 +136,18 @@ const initTelegramBot = () => {
         bot.sendMessage(chatId, `📋 *На модерации:* ${fanfics.length} фанфиков`, { parse_mode: 'Markdown' });
         
         for (const fanfic of fanfics) {
-          const authorType = fanfic.user_id ? '👤 Зарегистрированный' : '👤 Аноним';
-          const wordCount = fanfic.word_count || 'неизвестно';
+          const chapters = fanfic.chapters || [];
+          const wordCount = chapters.reduce((sum, ch) => sum + (ch.content?.length || 0), 0) || fanfic.content?.length || 0;
           
           const message = `
 📬 *Фанфик на модерации*
 
 *Название:* ${fanfic.title}
 *Автор:* ${fanfic.author}
-*Тип:* ${authorType}
 *Жанр:* ${fanfic.genre || 'Не указан'}
 *Рейтинг:* ${fanfic.age_rating || '0+'}
 *Слов:* ${wordCount}
-*Глав:* ${fanfic.chapter_count || 1}
+*Глав:* ${chapters.length || 1}
 *ID:* \`${fanfic.id}\`
 *Дата:* ${new Date(fanfic.created_at).toLocaleDateString('ru-RU')}
 
@@ -287,18 +285,18 @@ const notifyNewFanfic = (fanfic) => {
   }
   
   try {
-    const authorType = fanfic.user_id ? '👤 Зарегистрированный пользователь' : '👤 Анонимный автор';
-    const usernameInfo = fanfic.username ? `\n*Профиль:* ${fanfic.username}` : '';
+    const chapters = fanfic.chapters || [];
+    const wordCount = chapters.reduce((sum, ch) => sum + (ch.content?.length || 0), 0) || fanfic.content?.length || 0;
     
     const message = `
 📬 *Новый фанфик на модерацию!*
 
 *Название:* ${fanfic.title}
 *Автор:* ${fanfic.author}
-*Тип автора:* ${authorType}${usernameInfo}
 *Жанр:* ${fanfic.genre || 'Не указан'}
 *Рейтинг:* ${fanfic.age_rating || '0+'}
-*Глав:* ${fanfic.chapter_count || 1}
+*Слов:* ${wordCount}
+*Глав:* ${chapters.length || 1}
 *ID:* \`${fanfic.id}\`
 *Время:* ${new Date().toLocaleString('ru-RU')}
 
