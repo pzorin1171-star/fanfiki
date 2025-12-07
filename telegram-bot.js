@@ -15,9 +15,27 @@ const initTelegramBot = () => {
   }
   
   try {
-    bot = new TelegramBot(token, { polling: true });
-    
-    console.log('🤖 Telegram бот запущен');
+    // На Render используем webhook, локально polling
+    if (process.env.RENDER || process.env.NODE_ENV === 'production') {
+      // Webhook режим для Render
+      bot = new TelegramBot(token, { webHook: true });
+      const webhookUrl = `${SITE_URL}/bot${token}`;
+      
+      // Устанавливаем webhook
+      bot.setWebHook(webhookUrl)
+        .then(() => {
+          console.log(`🌐 Webhook установлен: ${webhookUrl}`);
+        })
+        .catch(err => {
+          console.error('❌ Ошибка установки webhook:', err.message);
+        });
+      
+      console.log('🤖 Telegram бот запущен в режиме Webhook');
+    } else {
+      // Polling режим для локальной разработки
+      bot = new TelegramBot(token, { polling: true });
+      console.log('🤖 Telegram бот запущен в режиме Polling');
+    }
     
     // Настройка команд
     bot.onText(/\/start/, (msg) => {
@@ -53,6 +71,64 @@ const initTelegramBot = () => {
       bot.sendMessage(chatId, helpText, { parse_mode: 'Markdown' });
     });
     
+    // Команда для просмотра фанфиков на модерации
+    bot.onText(/\/moderate/, async (msg) => {
+      const chatId = msg.chat.id;
+      
+      // Проверяем, что это админ
+      if (chatId.toString() !== ADMIN_CHAT_ID) {
+        bot.sendMessage(chatId, '⛔ Нет доступа');
+        return;
+      }
+      
+      try {
+        const response = await axios.get(`${SITE_URL}/api/admin/pending`, {
+          headers: {
+            'x-admin-token': process.env.ADMIN_TOKEN
+          }
+        });
+        
+        const fanfics = response.data;
+        
+        if (fanfics.length === 0) {
+          bot.sendMessage(chatId, '✅ Нет фанфиков на модерации.');
+          return;
+        }
+        
+        for (const fanfic of fanfics) {
+          const message = `
+📬 *Фанфик на модерации*
+
+*Название:* ${fanfic.title}
+*Автор:* ${fanfic.author}
+*Жанр:* ${fanfic.genre || 'Не указан'}
+*Рейтинг:* ${fanfic.age_rating || '0+'}
+*ID:* \`${fanfic.id}\`
+
+*Используйте кнопки для модерации:*
+          `.trim();
+          
+          const keyboard = {
+            inline_keyboard: [
+              [
+                { text: '✅ Одобрить', callback_data: `approve_${fanfic.id}` },
+                { text: '❌ Отклонить', callback_data: `reject_${fanfic.id}` }
+              ]
+            ]
+          };
+          
+          bot.sendMessage(chatId, message, { 
+            parse_mode: 'Markdown',
+            reply_markup: keyboard
+          });
+        }
+        
+      } catch (error) {
+        console.error('Ошибка получения фанфиков:', error.message);
+        bot.sendMessage(chatId, `❌ Ошибка: ${error.response?.data?.error || error.message}`);
+      }
+    });
+    
     // Обработка нажатий на кнопки (callback queries)
     bot.on('callback_query', async (callbackQuery) => {
       const message = callbackQuery.message;
@@ -74,6 +150,11 @@ const initTelegramBot = () => {
           {
             action: action,
             adminToken: process.env.ADMIN_TOKEN
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            }
           }
         );
         
@@ -84,11 +165,11 @@ const initTelegramBot = () => {
           
           // Обновляем сообщение
           const originalText = message.text;
-          const newText = originalText + `\n\n📋 *Статус:* ${statusText}`;
+          const newText = originalText + `\n\n📋 *Статус:* ${statusText}\n⏰ ${new Date().toLocaleString('ru-RU')}`;
           
           bot.editMessageText(newText, {
             chat_id: chatId,
-            message_id: callbackQuery.message.message_id,
+            message_id: message.message_id,
             parse_mode: 'Markdown'
           });
           
@@ -97,7 +178,7 @@ const initTelegramBot = () => {
             { inline_keyboard: [] },
             {
               chat_id: chatId,
-              message_id: callbackQuery.message.message_id
+              message_id: message.message_id
             }
           );
           
@@ -105,20 +186,24 @@ const initTelegramBot = () => {
         }
         
       } catch (error) {
-        console.error('Ошибка модерации:', error);
+        console.error('Ошибка модерации:', error.message);
         bot.answerCallbackQuery(callbackQuery.id, { 
-          text: `Ошибка: ${error.message}` 
+          text: `❌ Ошибка: ${error.response?.data?.error || error.message}` 
         });
       }
     });
     
-    // Обработка ошибок polling
+    // Обработка ошибок
     bot.on('polling_error', (error) => {
       console.error('📡 Ошибка polling:', error.message);
     });
     
+    bot.on('webhook_error', (error) => {
+      console.error('🌐 Ошибка webhook:', error.message);
+    });
+    
   } catch (error) {
-    console.error('❌ Ошибка запуска бота:', error);
+    console.error('❌ Ошибка запуска бота:', error.message);
   }
 };
 
@@ -138,6 +223,7 @@ const notifyNewFanfic = (fanfic) => {
 *Жанр:* ${fanfic.genre || 'Не указан'}
 *Рейтинг:* ${fanfic.age_rating || '0+'}
 *ID:* \`${fanfic.id}\`
+*Время:* ${new Date().toLocaleString('ru-RU')}
 
 *Используйте кнопки для модерации:*
     `.trim();
@@ -159,7 +245,7 @@ const notifyNewFanfic = (fanfic) => {
     console.log(`📤 Уведомление отправлено о фанфике: ${fanfic.title}`);
     
   } catch (error) {
-    console.error('Ошибка отправки уведомления:', error);
+    console.error('Ошибка отправки уведомления:', error.message);
   }
 };
 
