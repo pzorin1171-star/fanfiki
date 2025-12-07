@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
 // Импорт модулей
@@ -28,6 +29,15 @@ const {
 
 // Инициализация
 initDatabase();
+
+// Health check для Render
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    service: 'fanfic-hub'
+  });
+});
 
 // API Routes
 
@@ -183,10 +193,24 @@ app.post('/api/telegram/moderate/:id', async (req, res) => {
   }
 });
 
+// Эндпоинт для пинга (чтобы сервер не засыпал)
+app.get('/ping', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    time: new Date().toISOString(),
+    message: 'Сервер работает'
+  });
+});
+
 // Обслуживать фронтенд
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
+
+// Запускаем Telegram бот ПОСЛЕ инициализации сервера
+setTimeout(() => {
+  initTelegramBot();
+}, 2000); // Даем серверу время запуститься
 
 app.listen(PORT, () => {
   console.log(`🚀 Сервер запущен на порту ${PORT}`);
