@@ -5,16 +5,74 @@ services:
     buildCommand: npm install
     startCommand: node server.js
     envVars:
+      # Версия Node.js
       - key: NODE_VERSION
         value: 18.17.0
+      
+      # Порт (Render сам назначает, но лучше указать)
       - key: PORT
         value: 10000
+      
+      # Основные переменные (sync: false - не показывать в логах)
       - key: TELEGRAM_BOT_TOKEN
         sync: false
+      
       - key: TELEGRAM_ADMIN_CHAT_ID
         sync: false
+      
       - key: ADMIN_TOKEN
         sync: false
+      
+      - key: ADMIN_PASSWORD
+        sync: false
+      
+      # Сайт URL (генерируется автоматически)
       - key: SITE_URL
         generateValue: true
+      
+      # Дополнительные настройки
+      - key: NODE_ENV
+        value: production
+      
+      - key: SESSION_SECRET
+        generateValue: true
+    
+    # Настройки инстанса
+    instanceType: free
+    numInstances: 1
+    healthCheckPath: /api/health
     autoDeploy: true
+    
+    # Domains (опционально)
+    # domains:
+    #   - your-domain.com
+    
+    # Headers (опционально)
+    # headers:
+    #   - path: /*
+    #     name: X-Frame-Options
+    #     value: DENY
+    
+    # Дисковое пространство
+    disk:
+      name: fanfics-data
+      mountPath: /opt/render/project/src
+      sizeGB: 1
+
+# Фоновый воркер для Telegram бота (если нужно)
+# backgroundWorkers:
+#   - type: background
+#     name: telegram-bot
+#     env: node
+#     buildCommand: npm install
+#     startCommand: node server.js
+#     envVars:
+#       - key: NODE_VERSION
+#         value: 18.17.0
+#       - key: TELEGRAM_BOT_TOKEN
+#         sync: false
+#       - key: TELEGRAM_ADMIN_CHAT_ID
+#         sync: false
+#       - key: ADMIN_TOKEN
+#         sync: false
+#     numInstances: 1
