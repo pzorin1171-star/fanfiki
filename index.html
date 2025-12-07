@@ -1,93 +1,77 @@
-<!-- Добавьте этот код перед закрывающим тегом </body> -->
-
-<!-- Модальное окно входа -->
-<div id="login-modal" class="modal">
-    <div class="modal-content">
-        <button class="close-modal">&times;</button>
-        <h3><i class="fas fa-sign-in-alt"></i> Вход в систему</h3>
-        <form id="login-form">
-            <div class="form-group">
-                <label for="login-username">Имя пользователя:</label>
-                <input type="text" id="login-username" placeholder="Введите имя пользователя" required>
-            </div>
-            <div class="form-group">
-                <label for="login-password">Пароль:</label>
-                <input type="password" id="login-password" placeholder="Введите пароль" required>
-            </div>
-            <button type="submit" class="modal-btn">Войти</button>
-        </form>
-        <p style="margin-top: 15px; text-align: center;">
-            Нет аккаунта? <a href="javascript:void(0)" onclick="showRegisterModal();hideModal(loginModal)" style="color: #6d28d9;">Зарегистрироваться</a>
-        </p>
-    </div>
-</div>
-
-<!-- Модальное окно регистрации -->
-<div id="register-modal" class="modal">
-    <div class="modal-content">
-        <button class="close-modal">&times;</button>
-        <h3><i class="fas fa-user-plus"></i> Регистрация</h3>
-        <form id="register-form">
-            <div class="form-group">
-                <label for="register-username">Имя пользователя:*</label>
-                <input type="text" id="register-username" placeholder="Придумайте имя пользователя" required>
-            </div>
-            <div class="form-group">
-                <label for="register-email">Email (необязательно):</label>
-                <input type="email" id="register-email" placeholder="Ваш email">
-            </div>
-            <div class="form-group">
-                <label for="register-password">Пароль:*</label>
-                <input type="password" id="register-password" placeholder="Не менее 6 символов" required>
-            </div>
-            <div class="form-group">
-                <label for="register-confirm-password">Подтвердите пароль:*</label>
-                <input type="password" id="register-confirm-password" placeholder="Повторите пароль" required>
-            </div>
-            <button type="submit" class="modal-btn">Зарегистрироваться</button>
-        </form>
-        <p style="margin-top: 15px; text-align: center;">
-            Уже есть аккаунт? <a href="javascript:void(0)" onclick="showLoginModal();hideModal(registerModal)" style="color: #6d28d9;">Войти</a>
-        </p>
-    </div>
-</div>
-
-<!-- Обновленная шапка (заменить существующую шапку) -->
-<header>
-    <div class="header-container">
-        <div class="logo">
-            <h1><i class="fas fa-book"></i> ФанфикХаб</h1>
-            <p class="subtitle">Читайте и создавайте фанфики</p>
-        </div>
-        
-        <div class="header-controls">
-            <!-- Кнопки авторизации (видно когда не вошли) -->
-            <div id="auth-buttons" class="auth-buttons">
-                <button id="login-btn" class="auth-btn">
-                    <i class="fas fa-sign-in-alt"></i> Войти
-                </button>
-                <button id="register-btn" class="auth-btn secondary">
-                    <i class="fas fa-user-plus"></i> Регистрация
-                </button>
-            </div>
-            
-            <!-- Меню пользователя (видно когда вошли) -->
-            <div id="user-menu" class="user-menu" style="display: none;">
-                <div class="user-info">
-                    <i class="fas fa-user"></i>
-                    <span id="username-display"></span>
-                </div>
-                <button id="logout-btn" class="auth-btn">
-                    <i class="fas fa-sign-out-alt"></i> Выйти
-                </button>
-            </div>
-        </div>
-    </div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Отправить фанфик</title>
+    <style>
+        body { max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial; }
+        input, textarea, select { width: 100%; padding: 10px; margin: 10px 0; }
+        button { background: #0088cc; color: white; padding: 10px 20px; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>📚 Отправить фанфик</h1>
     
-    <!-- Вкладки -->
-    <div class="tabs">
-        <button id="tab-all" class="tab-btn active">Все фанфики</button>
-        <button id="tab-my" class="tab-btn" style="display: none;">Мои фанфики</button>
-        <button id="tab-bookmarks" class="tab-btn" style="display: none;">Закладки</button>
-    </div>
-</header>
+    <form id="fanficForm">
+        <input type="text" name="title" placeholder="Название" required>
+        <input type="text" name="author" placeholder="Автор" required>
+        <select name="genre" required>
+            <option value="">Выберите жанр</option>
+            <option>Романтика</option>
+            <option>Приключения</option>
+            <option>Фэнтези</option>
+            <option>Драма</option>
+        </select>
+        <select name="rating" required>
+            <option value="0+">0+</option>
+            <option value="12+">12+</option>
+            <option value="16+">16+</option>
+            <option value="18+">18+</option>
+        </select>
+        <textarea name="content" rows="10" placeholder="Текст фанфика..." required></textarea>
+        <button type="submit">Отправить на модерацию</button>
+    </form>
+    
+    <script>
+        document.getElementById('fanficForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            // Отправляем в Telegram через Bot API
+            const telegramToken = 'ВАШ_ТОКЕН_БОТА';
+            const chatId = 'ВАШ_CHAT_ID';
+            
+            const message = `📬 Новый фанфик!\n\n` +
+                           `Название: ${data.title}\n` +
+                           `Автор: ${data.author}\n` +
+                           `Жанр: ${data.genre}\n` +
+                           `Рейтинг: ${data.rating}\n\n` +
+                           `Текст: ${data.content.substring(0, 500)}...`;
+            
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message,
+                        parse_mode: 'Markdown',
+                        reply_markup: {
+                            inline_keyboard: [[
+                                { text: '✅ Одобрить', url: `https://t.me/ваш_бот?start=approve_${Date.now()}` },
+                                { text: '❌ Отклонить', url: `https://t.me/ваш_бот?start=reject_${Date.now()}` }
+                            ]]
+                        }
+                    })
+                });
+                
+                alert('Фанфик отправлен на модерацию!');
+                this.reset();
+            } catch (error) {
+                alert('Ошибка отправки');
+            }
+        });
+    </script>
+</body>
+</html>
