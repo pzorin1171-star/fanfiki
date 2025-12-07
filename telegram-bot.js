@@ -5,20 +5,26 @@ require('dotenv').config();
 let bot;
 const ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
 const SITE_URL = process.env.SITE_URL || 'http://localhost:3000';
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN;
 
 const initTelegramBot = () => {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   
-  if (!token || !ADMIN_CHAT_ID) {
+  if (!token || !ADMIN_CHAT_ID || !ADMIN_TOKEN) {
     console.warn('⚠️ Telegram бот не настроен. Уведомления не будут отправляться.');
+    console.log('Требуемые переменные:');
+    console.log('- TELEGRAM_BOT_TOKEN:', token ? 'Есть' : 'Нет');
+    console.log('- TELEGRAM_ADMIN_CHAT_ID:', ADMIN_CHAT_ID ? 'Есть' : 'Нет');
+    console.log('- ADMIN_TOKEN:', ADMIN_TOKEN ? 'Есть' : 'Нет');
     return;
   }
   
   try {
     // На Render используем webhook, локально polling
     if (process.env.RENDER || process.env.NODE_ENV === 'production') {
-      // Webhook режим для Render
-      bot = new TelegramBot(token, { webHook: true });
+      bot = new TelegramBot(token);
+      
+      // Webhook URL
       const webhookUrl = `${SITE_URL}/bot${token}`;
       
       // Устанавливаем webhook
@@ -32,7 +38,6 @@ const initTelegramBot = () => {
       
       console.log('🤖 Telegram бот запущен в режиме Webhook');
     } else {
-      // Polling режим для локальной разработки
       bot = new TelegramBot(token, { polling: true });
       console.log('🤖 Telegram бот запущен в режиме Polling');
     }
@@ -47,6 +52,7 @@ const initTelegramBot = () => {
       if (isAdmin) {
         message += `Вы администратор. Доступные команды:\n`;
         message += `/moderate - Показать фанфики на модерации\n`;
+        message += `/stats - Статистика сайта\n`;
         message += `/help - Помощь`;
       } else {
         message += `Я отправляю уведомления администратору о новых фанфиках.\n`;
@@ -63,6 +69,7 @@ const initTelegramBot = () => {
 
 *Для администраторов:*
 /moderate - Показать фанфики на проверке
+/stats - Статистика сайта
 
 *Ссылки:*
 Сайт: ${SITE_URL}
@@ -71,7 +78,39 @@ const initTelegramBot = () => {
       bot.sendMessage(chatId, helpText, { parse_mode: 'Markdown' });
     });
     
-    // Команда для просмотра фанфиков на модерации
+    // Команда для статистики
+    bot.onText(/\/stats/, async (msg) => {
+      const chatId = msg.chat.id;
+      
+      if (chatId.toString() !== ADMIN_CHAT_ID) {
+        bot.sendMessage(chatId, '⛔ Нет доступа');
+        return;
+      }
+      
+      try {
+        const response = await axios.get(`${SITE_URL}/api/stats`);
+        const stats = response.data;
+        
+        const message = `
+📊 *Статистика сайта*
+
+*Всего фанфиков:* ${stats.total_fanfics || 0}
+*Одобрено:* ${stats.approved_fanfics || 0}
+*На модерации:* ${stats.pending_fanfics || 0}
+
+*Просмотры:* ${stats.total_views || 0}
+*Лайки:* ${stats.total_likes || 0}
+*Слова:* ${stats.total_words || 0}
+        `.trim();
+        
+        bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+      } catch (error) {
+        console.error('Ошибка получения статистики:', error.message);
+        bot.sendMessage(chatId, `❌ Ошибка: ${error.message}`);
+      }
+    });
+    
+    // Команда для модерации
     bot.onText(/\/moderate/, async (msg) => {
       const chatId = msg.chat.id;
       
@@ -84,7 +123,7 @@ const initTelegramBot = () => {
       try {
         const response = await axios.get(`${SITE_URL}/api/admin/pending`, {
           headers: {
-            'x-admin-token': process.env.ADMIN_TOKEN
+            'x-admin-token': ADMIN_TOKEN
           }
         });
         
@@ -95,15 +134,24 @@ const initTelegramBot = () => {
           return;
         }
         
+        bot.sendMessage(chatId, `📋 *На модерации:* ${fanfics.length} фанфиков`, { parse_mode: 'Markdown' });
+        
         for (const fanfic of fanfics) {
+          const authorType = fanfic.user_id ? '👤 Зарегистрированный' : '👤 Аноним';
+          const wordCount = fanfic.word_count || 'неизвестно';
+          
           const message = `
 📬 *Фанфик на модерации*
 
 *Название:* ${fanfic.title}
 *Автор:* ${fanfic.author}
+*Тип:* ${authorType}
 *Жанр:* ${fanfic.genre || 'Не указан'}
 *Рейтинг:* ${fanfic.age_rating || '0+'}
+*Слов:* ${wordCount}
+*Глав:* ${fanfic.chapter_count || 1}
 *ID:* \`${fanfic.id}\`
+*Дата:* ${new Date(fanfic.created_at).toLocaleDateString('ru-RU')}
 
 *Используйте кнопки для модерации:*
           `.trim();
@@ -111,8 +159,20 @@ const initTelegramBot = () => {
           const keyboard = {
             inline_keyboard: [
               [
-                { text: '✅ Одобрить', callback_data: `approve_${fanfic.id}` },
-                { text: '❌ Отклонить', callback_data: `reject_${fanfic.id}` }
+                { 
+                  text: '✅ Одобрить', 
+                  callback_data: `approve_${fanfic.id}` 
+                },
+                { 
+                  text: '❌ Отклонить', 
+                  callback_data: `reject_${fanfic.id}` 
+                }
+              ],
+              [
+                {
+                  text: '📖 Посмотреть',
+                  url: `${SITE_URL}/?view=${fanfic.id}`
+                }
               ]
             ]
           };
@@ -129,7 +189,7 @@ const initTelegramBot = () => {
       }
     });
     
-    // Обработка нажатий на кнопки (callback queries)
+    // Обработка нажатий на кнопки
     bot.on('callback_query', async (callbackQuery) => {
       const message = callbackQuery.message;
       const data = callbackQuery.data;
@@ -149,7 +209,7 @@ const initTelegramBot = () => {
           `${SITE_URL}/api/telegram/moderate/${fanficId}`,
           {
             action: action,
-            adminToken: process.env.ADMIN_TOKEN
+            adminToken: ADMIN_TOKEN
           },
           {
             headers: {
@@ -162,10 +222,11 @@ const initTelegramBot = () => {
         
         if (result.success) {
           const statusText = action === 'approve' ? 'одобрен ✅' : 'отклонен ❌';
+          const statusEmoji = action === 'approve' ? '✅' : '❌';
           
           // Обновляем сообщение
           const originalText = message.text;
-          const newText = originalText + `\n\n📋 *Статус:* ${statusText}\n⏰ ${new Date().toLocaleString('ru-RU')}`;
+          const newText = originalText + `\n\n${statusEmoji} *Статус:* ${statusText}\n⏰ *Время:* ${new Date().toLocaleString('ru-RU')}`;
           
           bot.editMessageText(newText, {
             chat_id: chatId,
@@ -183,6 +244,17 @@ const initTelegramBot = () => {
           );
           
           bot.answerCallbackQuery(callbackQuery.id, { text: `Фанфик ${statusText}` });
+          
+          // Если одобрили, отправляем ссылку на фанфик
+          if (action === 'approve') {
+            setTimeout(() => {
+              bot.sendMessage(
+                chatId,
+                `🔗 Фанфик доступен по ссылке: ${result.fanfic.viewUrl}`,
+                { parse_mode: 'Markdown' }
+              );
+            }, 1000);
+          }
         }
         
       } catch (error) {
@@ -215,13 +287,18 @@ const notifyNewFanfic = (fanfic) => {
   }
   
   try {
+    const authorType = fanfic.user_id ? '👤 Зарегистрированный пользователь' : '👤 Анонимный автор';
+    const usernameInfo = fanfic.username ? `\n*Профиль:* ${fanfic.username}` : '';
+    
     const message = `
 📬 *Новый фанфик на модерацию!*
 
 *Название:* ${fanfic.title}
 *Автор:* ${fanfic.author}
+*Тип автора:* ${authorType}${usernameInfo}
 *Жанр:* ${fanfic.genre || 'Не указан'}
 *Рейтинг:* ${fanfic.age_rating || '0+'}
+*Глав:* ${fanfic.chapter_count || 1}
 *ID:* \`${fanfic.id}\`
 *Время:* ${new Date().toLocaleString('ru-RU')}
 
@@ -231,8 +308,20 @@ const notifyNewFanfic = (fanfic) => {
     const keyboard = {
       inline_keyboard: [
         [
-          { text: '✅ Одобрить', callback_data: `approve_${fanfic.id}` },
-          { text: '❌ Отклонить', callback_data: `reject_${fanfic.id}` }
+          { 
+            text: '✅ Одобрить', 
+            callback_data: `approve_${fanfic.id}` 
+          },
+          { 
+            text: '❌ Отклонить', 
+            callback_data: `reject_${fanfic.id}` 
+          }
+        ],
+        [
+          {
+            text: '📖 Посмотреть фанфик',
+            url: `${SITE_URL}/?view=${fanfic.id}`
+          }
         ]
       ]
     };
