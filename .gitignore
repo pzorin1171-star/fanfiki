@@ -1,30 +1,111 @@
-# Зависимости
+# ===== ЗАВИСИМОСТИ =====
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
-# Environment variables
+# ===== ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ =====
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env*.local
 
-# База данных
+# ===== БАЗЫ ДАННЫХ =====
 *.db
 *.db-journal
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
 
-# IDE файлы
+# ===== ЛОГИ =====
+*.log
+logs/
+*.logs
+npm-debug.log*
+
+# ===== IDE и РЕДАКТОРЫ =====
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# Операционная система
+*~
 .DS_Store
 Thumbs.db
 
-# Логи
-*.log
-logs/
+# ===== СБОРОЧНЫЕ ФАЙЛЫ =====
+dist/
+build/
+.out/
+.next/
+.cache/
+
+# ===== ОПЕРАЦИОННЫЕ СИСТЕМЫ =====
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ===== ТЕСТЫ =====
+coverage/
+.nyc_output/
+
+# ===== ВРЕМЕННЫЕ ФАЙЛЫ =====
+tmp/
+temp/
+*.tmp
+*.temp
+
+# ===== UPLOADS =====
+uploads/
+public/uploads/
+*.upload
+
+# ===== ДОПОЛНИТЕЛЬНО =====
+# Файлы сессий
+*.session
+*.session.*
+
+# Кэш
+.cache/
+.turbo
+
+# Профилирование
+*.cpuprofile
+*.heapsnapshot
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# ===== СЕКРЕТЫ =====
+# Никогда не коммитьте секретные ключи!
+secrets.json
+credentials.json
+*.pem
+*.key
+*.crt
+
+# ===== ПРОЕКТ-СПЕЦИФИЧНЫЕ =====
+# Telegram session files (если есть)
+*.session
+*.session.*
+
+# Backup files
+backup/
+*.bak
