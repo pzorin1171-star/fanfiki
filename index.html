@@ -1,655 +1,176 @@
 <!DOCTYPE html>
-<html lang="ru" class="dark-theme">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <meta name="description" content="ФанфикХаб - платформа для чтения и создания фанфиков. Без регистрации, с модерацией через Telegram.">
-    <meta name="keywords" content="фанфики, рассказы, творчество, книги, литература">
-    <title>ФанфикХаб | Читайте и создавайте фанфики</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
-    
-    <!-- Stylesheets -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ФанфикХаб - Платформа для фанфиков</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+Pro:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="style.css">
-    
-    <!-- Open Graph Meta -->
-    <meta property="og:title" content="ФанфикХаб | Платформа для фанфиков">
-    <meta property="og:description" content="Читайте и создавайте фанфики без регистрации">
-    <meta property="og:type" content="website">
-    
-    <!-- Structured Data -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "ФанфикХаб",
-        "description": "Платформа для чтения и создания фанфиков",
-        "applicationCategory": "EntertainmentApplication",
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-        }
-    }
-    </script>
 </head>
 <body>
-    <!-- Навигация -->
-    <nav class="main-nav">
-        <div class="nav-container">
-            <div class="nav-brand">
-                <div class="logo">
-                    <i class="fas fa-book-open"></i>
-                    <span>ФанфикХаб</span>
-                </div>
-                <div class="nav-subtitle">Платформа для авторов и читателей</div>
-            </div>
-            
-            <div class="nav-stats">
-                <div class="stat-item">
-                    <i class="fas fa-book"></i>
-                    <span id="total-fanfics">0</span>
-                    <small>Фанфиков</small>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-users"></i>
-                    <span id="total-authors">0</span>
-                    <small>Авторов</small>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Основной контейнер -->
-    <div class="app-container">
+    <div class="container">
         <!-- Главная страница -->
-        <main id="main-page" class="page active">
-            <header class="page-header">
-                <div class="header-content">
-                    <h1 class="main-title">
-                        <span class="title-line">Добро пожаловать в мир</span>
-                        <span class="title-accent">фанфиков</span>
-                    </h1>
-                    <p class="page-description">
-                        Читайте лучшие произведения, созданные сообществом, или поделитесь своей историей. 
-                        Без регистрации, с заботой о каждом авторе.
-                    </p>
-                    
-                    <div class="cta-buttons">
-                        <button id="explore-btn" class="btn btn-primary">
-                            <i class="fas fa-compass"></i> Исследовать
-                        </button>
-                        <button id="create-btn" class="btn btn-secondary">
-                            <i class="fas fa-pen-fancy"></i> Начать писать
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="header-decoration">
-                    <div class="decoration-item"><i class="fas fa-quote-left"></i></div>
-                    <div class="decoration-item"><i class="fas fa-heart"></i></div>
-                    <div class="decoration-item"><i class="fas fa-star"></i></div>
-                </div>
+        <div id="main-page" class="page active">
+            <header>
+                <h1><i class="fas fa-book"></i> ФанфикХаб</h1>
+                <p class="subtitle">Читайте и создавайте фанфики без регистрации</p>
             </header>
 
-            <!-- Система фильтров -->
-            <section class="filters-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-filter"></i> Найти произведение</h2>
-                    <p class="section-subtitle">Используйте фильтры для поиска идеального фанфика</p>
-                </div>
-                
-                <div class="filters-grid">
-                    <div class="filter-group">
-                        <label for="search-input" class="filter-label">
-                            <i class="fas fa-search"></i> Поиск
-                        </label>
-                        <div class="search-container">
-                            <input type="text" 
-                                   id="search-input" 
-                                   class="search-input"
-                                   placeholder="По названию, автору или тегам...">
-                            <button class="search-clear" id="clear-search">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label for="genre-filter" class="filter-label">
-                            <i class="fas fa-tags"></i> Жанр
-                        </label>
-                        <select id="genre-filter" class="filter-select">
-                            <option value="">Все жанры</option>
-                            <option value="Романтика">💖 Романтика</option>
-                            <option value="Драма">🎭 Драма</option>
-                            <option value="Приключения">⚔️ Приключения</option>
-                            <option value="Фэнтези">🐉 Фэнтези</option>
-                            <option value="Научная фантастика">🚀 Научная фантастика</option>
-                            <option value="Детектив">🔍 Детектив</option>
-                            <option value="Гет">👫 Гет</option>
-                            <option value="Слэш">👬 Слэш</option>
-                            <option value="Фемслэш">👭 Фемслэш</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label for="age-filter" class="filter-label">
-                            <i class="fas fa-user-shield"></i> Возраст
-                        </label>
-                        <select id="age-filter" class="filter-select">
-                            <option value="">Все возраста</option>
-                            <option value="0+">🟢 0+ (Для всех)</option>
-                            <option value="12+">🟡 12+ (12 и старше)</option>
-                            <option value="16+">🟠 16+ (16 и старше)</option>
-                            <option value="18+">🔴 18+ (Только для взрослых)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label class="filter-label">
-                            <i class="fas fa-sort-amount-down"></i> Сортировка
-                        </label>
-                        <select id="sort-filter" class="filter-select">
-                            <option value="newest">📅 Сначала новые</option>
-                            <option value="popular">🔥 Популярные</option>
-                            <option value="views">👁️ Больше просмотров</option>
-                            <option value="likes">❤️ Больше лайков</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="active-filters" id="active-filters">
-                    <!-- Активные фильтры будут появляться здесь -->
-                </div>
-            </section>
+            <div class="filters">
+                <input type="text" id="search-input" placeholder="Поиск по названию или автору...">
+                <select id="genre-filter">
+                    <option value="">Все жанры</option>
+                    <option value="Романтика">Романтика</option>
+                    <option value="Драма">Драма</option>
+                    <option value="Приключения">Приключения</option>
+                    <option value="Фэнтези">Фэнтези</option>
+                    <option value="Научная фантастика">Научная фантастика</option>
+                    <option value="Гет">Гет</option>
+                    <option value="Слэш">Слэш</option>
+                    <option value="Фемслэш">Фемслэш</option>
+                </select>
+                <select id="age-filter">
+                    <option value="">Все возраста</option>
+                    <option value="0+">0+</option>
+                    <option value="12+">12+</option>
+                    <option value="16+">16+</option>
+                    <option value="18+">18+</option>
+                </select>
+            </div>
 
-            <!-- Сетка фанфиков -->
-            <section class="fanfics-section">
-                <div class="section-header">
-                    <div class="header-left">
-                        <h2><i class="fas fa-book-reader"></i> Последние фанфики</h2>
-                        <div class="results-count">
-                            Найдено: <span id="results-count">0</span> произведений
-                        </div>
-                    </div>
-                    <div class="header-right">
-                        <button id="refresh-btn" class="btn btn-icon" title="Обновить">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                        <div class="view-toggle">
-                            <button class="view-btn active" data-view="grid">
-                                <i class="fas fa-th-large"></i>
-                            </button>
-                            <button class="view-btn" data-view="list">
-                                <i class="fas fa-list"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="loading-state" id="loading-state">
-                    <div class="spinner"></div>
-                    <p>Загружаем фанфики...</p>
-                </div>
-                
-                <div class="empty-state" id="empty-state">
-                    <i class="fas fa-book"></i>
-                    <h3>Фанфиков не найдено</h3>
-                    <p>Попробуйте изменить параметры поиска или станьте первым автором!</p>
-                </div>
-                
-                <div id="fanfics-container" class="fanfics-grid">
-                    <!-- Фанфики будут загружены здесь -->
-                </div>
-                
-                <div class="load-more-container" id="load-more-container">
-                    <button id="load-more-btn" class="btn btn-outline">
-                        <i class="fas fa-plus"></i> Загрузить еще
-                    </button>
-                </div>
-            </section>
-            
-            <!-- Быстрое создание фанфика -->
-            <section class="quick-create">
-                <div class="create-card">
-                    <div class="create-content">
-                        <h3><i class="fas fa-magic"></i> Хотите поделиться историей?</h3>
-                        <p>Не ждите вдохновения — создайте свой фанфик прямо сейчас. Простой редактор, мгновенная публикация после модерации.</p>
-                        <button id="quick-create-btn" class="btn btn-create">
-                            <i class="fas fa-feather-alt"></i> Начать писать
-                        </button>
-                    </div>
-                    <div class="create-illustration">
-                        <i class="fas fa-pen-nib"></i>
-                    </div>
-                </div>
-            </section>
-        </main>
+            <div id="fanfics-container" class="fanfics-grid">
+                <!-- Фанфики загружаются через JS -->
+                <div class="loading">Загрузка фанфиков...</div>
+            </div>
 
-        <!-- Страница создания фанфика -->
+            <div class="floating-button-container">
+                <button id="create-btn" class="floating-button">
+                    <i class="fas fa-pen"></i> Написать произведение
+                </button>
+            </div>
+        </div>
+
+        <!-- Страница создания -->
         <div id="create-page" class="page">
             <div class="create-header">
                 <button id="back-btn" class="back-btn">
-                    <i class="fas fa-arrow-left"></i> Вернуться
+                    <i class="fas fa-arrow-left"></i> Назад
                 </button>
-                <div class="create-title">
-                    <h2><i class="fas fa-pen-nib"></i> Создание нового фанфика</h2>
-                    <p class="create-subtitle">Заполните информацию о вашем произведении</p>
-                </div>
-                <div class="create-progress">
-                    <div class="progress-step active" data-step="1">Основное</div>
-                    <div class="progress-step" data-step="2">Содержание</div>
-                    <div class="progress-step" data-step="3">Проверка</div>
-                </div>
+                <h2>Создание фанфика</h2>
             </div>
 
             <div class="create-container">
-                <!-- Боковая панель с информацией -->
-                <aside class="create-sidebar">
-                    <div class="sidebar-card">
-                        <h3><i class="fas fa-info-circle"></i> Советы авторам</h3>
-                        <ul class="tips-list">
-                            <li><i class="fas fa-check"></i> Придумайте запоминающееся название</li>
-                            <li><i class="fas fa-check"></i> Выберите подходящие жанры и теги</li>
-                            <li><i class="fas fa-check"></i> Укажите возрастной рейтинг</li>
-                            <li><i class="fas fa-check"></i> Разделите текст на главы</li>
-                            <li><i class="fas fa-check"></i> Проверьте орфографию</li>
-                        </ul>
+                <div class="sidebar">
+                    <div class="form-group">
+                        <label for="fanfic-title">Название произведения:</label>
+                        <input type="text" id="fanfic-title" placeholder="Введите название">
                     </div>
-                    
-                    <div class="form-section">
-                        <h4><i class="fas fa-heading"></i> Основная информация</h4>
-                        
-                        <div class="form-group">
-                            <label for="fanfic-title" class="form-label">
-                                Название произведения
-                                <span class="required">*</span>
-                            </label>
-                            <input type="text" 
-                                   id="fanfic-title" 
-                                   class="form-input"
-                                   placeholder="Введите название..."
-                                   maxlength="100">
-                            <div class="input-counter">
-                                <span id="title-counter">0</span>/100
-                            </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label for="author-name" class="form-label">
-                                Имя автора
-                                <span class="required">*</span>
-                            </label>
-                            <input type="text" 
-                                   id="author-name" 
-                                   class="form-input"
-                                   placeholder="Ваше имя или псевдоним..."
-                                   maxlength="50">
-                            <div class="input-counter">
-                                <span id="author-counter">0</span>/50
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group half">
-                                <label for="genre" class="form-label">Жанр</label>
-                                <select id="genre" class="form-select">
-                                    <option value="Романтика">💖 Романтика</option>
-                                    <option value="Драма">🎭 Драма</option>
-                                    <option value="Приключения">⚔️ Приключения</option>
-                                    <option value="Фэнтези">🐉 Фэнтези</option>
-                                    <option value="Научная фантастика">🚀 Научная фантастика</option>
-                                    <option value="Детектив">🔍 Детектив</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group half">
-                                <label for="age-rating" class="form-label">Возрастной рейтинг</label>
-                                <select id="age-rating" class="form-select">
-                                    <option value="0+">🟢 0+ (Для всех)</option>
-                                    <option value="12+">🟡 12+ (12 и старше)</option>
-                                    <option value="16+" selected>🟠 16+ (16 и старше)</option>
-                                    <option value="18+">🔴 18+ (Только для взрослых)</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Теги (максимум 5)</label>
-                            <div class="tags-container">
-                                <div class="tags-grid">
-                                    <button type="button" class="tag-btn" data-tag="Любовная история">
-                                        💖 Любовная история
-                                    </button>
-                                    <button type="button" class="tag-btn" data-tag="Драма">
-                                        🎭 Драма
-                                    </button>
-                                    <button type="button" class="tag-btn" data-tag="Приключения">
-                                        ⚔️ Приключения
-                                    </button>
-                                    <button type="button" class="tag-btn" data-tag="Юмор">
-                                        😂 Юмор
-                                    </button>
-                                    <button type="button" class="tag-btn" data-tag="Грустный финал">
-                                        😢 Грустный финал
-                                    </button>
-                                    <button type="button" class="tag-btn" data-tag="Счастливый финал">
-                                        😊 Счастливый финал
-                                    </button>
-                                    <button type="button" class="tag-btn" data-tag="18+">
-                                        🔞 18+
-                                    </button>
-                                    <button type="button" class="tag-btn" data-tag="Флафф">
-                                        🍬 Флафф
-                                    </button>
-                                    <button type="button" class="tag-btn" data-tag="Ангст">
-                                        🖤 Ангст
-                                    </button>
-                                    <button type="button" class="tag-btn" data-tag="Первая публикация">
-                                        🆕 Первая публикация
-                                    </button>
-                                </div>
-                            </div>
-                            <div id="selected-tags" class="selected-tags">
-                                <!-- Выбранные теги появятся здесь -->
-                            </div>
-                            <div class="tags-counter">
-                                Выбрано: <span id="tags-count">0</span>/5
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label for="author-name">Имя автора:</label>
+                        <input type="text" id="author-name" placeholder="Ваше имя или псевдоним">
                     </div>
-                    
-                    <div class="sidebar-action">
-                        <button id="submit-btn" class="btn btn-submit">
-                            <i class="fas fa-paper-plane"></i>
-                            <span>Отправить на модерацию</span>
+
+                    <div class="form-group">
+                        <label for="genre">Жанр:</label>
+                        <select id="genre">
+                            <option value="Романтика">Романтика</option>
+                            <option value="Драма">Драма</option>
+                            <option value="Приключения">Приключения</option>
+                            <option value="Фэнтези">Фэнтези</option>
+                            <option value="Научная фантастика">Научная фантастика</option>
+                            <option value="Гет">Гет</option>
+                            <option value="Слэш">Слэш</option>
+                            <option value="Фемслэш">Фемслэш</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="age-rating">Возрастная категория:</label>
+                        <select id="age-rating">
+                            <option value="0+">0+</option>
+                            <option value="12+">12+</option>
+                            <option value="16+">16+</option>
+                            <option value="18+">18+</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Теги (максимум 3):</label>
+                        <div class="tags-container">
+                            <button type="button" class="tag-btn" data-tag="Хороший фанфик">👍 Хороший фанфик</button>
+                            <button type="button" class="tag-btn" data-tag="18+">🔞 18+</button>
+                            <button type="button" class="tag-btn" data-tag="Смешной">😂 Смешной</button>
+                            <button type="button" class="tag-btn" data-tag="Грустный">😢 Грустный</button>
+                            <button type="button" class="tag-btn" data-tag="Драматичный">🎭 Драматичный</button>
+                        </div>
+                        <div id="selected-tags" class="selected-tags"></div>
+                    </div>
+
+                    <button id="submit-btn" class="submit-btn">
+                        <i class="fas fa-paper-plane"></i> Отправить на рассмотрение
+                    </button>
+
+                    <div class="info-box">
+                        <p><i class="fas fa-info-circle"></i> После отправки фанфик будет проверен модератором в Telegram</p>
+                    </div>
+                </div>
+
+                <div class="editor-container">
+                    <div class="chapter-header">
+                        <div class="chapter-title-container">
+                            <label>Название главы:</label>
+                            <input type="text" id="chapter-title" placeholder="Глава 1: Начало" value="Глава 1">
+                        </div>
+                        <button type="button" id="add-chapter-btn" class="add-chapter-btn">
+                            <i class="fas fa-plus"></i> Добавить главу
                         </button>
-                        
-                        <div class="submit-info">
-                            <i class="fas fa-info-circle"></i>
-                            После отправки фанфик будет проверен модератором через Telegram
-                        </div>
                     </div>
-                </aside>
 
-                <!-- Основной редактор -->
-                <main class="create-main">
-                    <div class="editor-header">
-                        <div class="chapter-controls">
-                            <div class="form-group">
-                                <label for="chapter-title" class="form-label">
-                                    Название главы
-                                </label>
-                                <input type="text" 
-                                       id="chapter-title" 
-                                       class="form-input"
-                                       placeholder="Глава 1: Начало..."
-                                       value="Глава 1">
-                            </div>
-                            
-                            <div class="chapter-actions">
-                                <button id="add-chapter-btn" class="btn btn-icon">
-                                    <i class="fas fa-plus"></i> Добавить главу
-                                </button>
-                                <button id="save-draft-btn" class="btn btn-outline">
-                                    <i class="fas fa-save"></i> Черновик
-                                </button>
+                    <div class="chapters-sidebar">
+                        <h3><i class="fas fa-list"></i> Главы</h3>
+                        <div id="chapters-list">
+                            <div class="chapter-item active" data-index="0">
+                                <span>Глава 1</span>
+                                <button type="button" class="delete-chapter-btn"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="editor-wrapper">
-                        <!-- Панель глав -->
-                        <aside class="chapters-sidebar">
-                            <div class="chapters-header">
-                                <h3><i class="fas fa-list-ol"></i> Список глав</h3>
-                                <span class="chapters-count" id="chapters-count">1</span>
-                            </div>
-                            <div id="chapters-list" class="chapters-list">
-                                <div class="chapter-item active" data-index="0">
-                                    <div class="chapter-info">
-                                        <div class="chapter-title">Глава 1</div>
-                                        <div class="chapter-stats">0 символов</div>
-                                    </div>
-                                    <button type="button" class="chapter-delete" title="Удалить главу">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </aside>
-
-                        <!-- Основной редактор текста -->
-                        <div class="editor-content">
-                            <div class="editor-toolbar">
-                                <button type="button" class="toolbar-btn" data-format="bold" title="Жирный">
-                                    <i class="fas fa-bold"></i>
-                                </button>
-                                <button type="button" class="toolbar-btn" data-format="italic" title="Курсив">
-                                    <i class="fas fa-italic"></i>
-                                </button>
-                                <button type="button" class="toolbar-btn" data-format="underline" title="Подчеркивание">
-                                    <i class="fas fa-underline"></i>
-                                </button>
-                                <div class="toolbar-separator"></div>
-                                <button type="button" class="toolbar-btn" data-format="quote" title="Цитата">
-                                    <i class="fas fa-quote-right"></i>
-                                </button>
-                                <button type="button" class="toolbar-btn" data-format="center" title="По центру">
-                                    <i class="fas fa-align-center"></i>
-                                </button>
-                            </div>
-                            
-                            <textarea id="content-editor" 
-                                      class="content-editor"
-                                      placeholder="Начните писать ваше произведение здесь... 
-Пример: 'Был тихий осенний вечер. Дождь стучал по крыше старого дома...'"
-                                      spellcheck="true"></textarea>
-                            
-                            <div class="editor-footer">
-                                <div class="editor-stats">
-                                    <div class="stat-item">
-                                        <i class="fas fa-font"></i>
-                                        <span id="char-count">0</span> символов
-                                    </div>
-                                    <div class="stat-item">
-                                        <i class="fas fa-file-word"></i>
-                                        <span id="word-count">0</span> слов
-                                    </div>
-                                    <div class="stat-item">
-                                        <i class="fas fa-clock"></i>
-                                        <span id="read-time">0</span> мин чтения
-                                    </div>
-                                </div>
-                                
-                                <div class="editor-help">
-                                    <i class="fas fa-lightbulb"></i>
-                                    Совет: Разбивайте текст на абзацы для удобства чтения
-                                </div>
-                            </div>
+                    <div class="editor-main">
+                        <textarea id="content-editor" placeholder="Начните писать ваш фанфик здесь..."></textarea>
+                        <div class="editor-stats">
+                            <span id="char-count">0 символов</span>
+                            <span id="word-count">0 слов</span>
                         </div>
                     </div>
-                </main>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Футер -->
-    <footer class="main-footer">
-        <div class="footer-container">
-            <div class="footer-section">
-                <div class="footer-logo">
-                    <i class="fas fa-book-open"></i>
-                    <span>ФанфикХаб</span>
-                </div>
-                <p class="footer-description">
-                    Платформа для творческих людей. Читайте и создавайте фанфики в дружелюбном сообществе.
-                </p>
-                <div class="footer-social">
-                    <a href="#" class="social-link" title="Telegram">
-                        <i class="fab fa-telegram"></i>
-                    </a>
-                    <a href="#" class="social-link" title="GitHub">
-                        <i class="fab fa-github"></i>
-                    </a>
-                    <a href="#" class="social-link" title="Поддержка">
-                        <i class="fas fa-envelope"></i>
-                    </a>
-                </div>
-            </div>
-            
-            <div class="footer-section">
-                <h4>Навигация</h4>
-                <ul class="footer-links">
-                    <li><a href="#" id="footer-home">Главная</a></li>
-                    <li><a href="#" id="footer-create">Создать фанфик</a></li>
-                    <li><a href="#" id="footer-rules">Правила</a></li>
-                    <li><a href="#" id="footer-faq">FAQ</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h4>Помощь</h4>
-                <ul class="footer-links">
-                    <li><a href="#" id="footer-guide">Как публиковать</a></li>
-                    <li><a href="#" id="footer-moder">Модерация</a></li>
-                    <li><a href="#" id="footer-contact">Контакты</a></li>
-                    <li><a href="#" id="footer-status">Статус сайта</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h4>Статистика</h4>
-                <div class="footer-stats">
-                    <div class="footer-stat">
-                        <i class="fas fa-book"></i>
-                        <span id="footer-fanfic-count">0</span> фанфиков
-                    </div>
-                    <div class="footer-stat">
-                        <i class="fas fa-users"></i>
-                        <span id="footer-author-count">0</span> авторов
-                    </div>
-                    <div class="footer-stat">
-                        <i class="fas fa-eye"></i>
-                        <span id="footer-views-count">0</span> просмотров
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="footer-bottom">
-            <p>&copy; 2024 ФанфикХаб. Все права защищены.</p>
-            <p>Сделано с <i class="fas fa-heart"></i> для творческого сообщества</p>
-        </div>
-    </footer>
-
-    <!-- Модальные окна -->
-    
     <!-- Модальное окно отправки -->
-    <div id="submit-modal" class="modal-overlay">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h3><i class="fas fa-paper-plane"></i> Отправка на модерацию</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="modal-icon success">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <h4>Фанфик успешно отправлен!</h4>
-                <p>Ваше произведение отправлено на проверку модератору через Telegram.</p>
-                <p>Вы получите уведомление, когда фанфик будет одобрен и опубликован.</p>
-                
-                <div class="submission-details">
-                    <div class="detail-item">
-                        <span class="detail-label">ID отправки:</span>
-                        <code id="submission-id-value">Загрузка...</code>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Статус:</span>
-                        <span class="status-badge pending">⏳ На модерации</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Ожидание:</span>
-                        <span>Обычно 1-24 часа</span>
-                    </div>
-                </div>
-                
-                <div class="modal-actions">
-                    <button id="modal-ok-btn" class="btn btn-primary">
-                        <i class="fas fa-check"></i> Понятно
-                    </button>
-                    <button id="modal-copy-btn" class="btn btn-outline">
-                        <i class="fas fa-copy"></i> Копировать ID
-                    </button>
-                </div>
+    <div id="submit-modal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-paper-plane"></i> Отправка на модерацию</h3>
+            <p>Ваш фанфик отправлен на проверку модератору в Telegram. Вы получите уведомление, когда он будет одобрен.</p>
+            <p id="submission-id">ID отправки: <span id="submission-id-value"></span></p>
+            <div class="modal-buttons">
+                <button id="modal-ok-btn" class="modal-btn">OK</button>
             </div>
         </div>
     </div>
 
     <!-- Модальное окно просмотра фанфика -->
-    <div id="view-modal" class="modal-overlay">
-        <div class="modal-container large-modal">
-            <div class="modal-header">
-                <h3 id="view-modal-title">Просмотр фанфика</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body" id="fanfic-content">
+    <div id="view-modal" class="modal">
+        <div class="modal-content large-modal">
+            <button class="close-modal">&times;</button>
+            <div id="fanfic-content">
                 <!-- Контент фанфика будет загружен здесь -->
             </div>
         </div>
     </div>
 
-    <!-- Модальное окно подтверждения -->
-    <div id="confirm-modal" class="modal-overlay">
-        <div class="modal-container small-modal">
-            <div class="modal-body">
-                <h4 id="confirm-title">Подтвердите действие</h4>
-                <p id="confirm-message">Вы уверены, что хотите выполнить это действие?</p>
-                <div class="modal-actions">
-                    <button id="confirm-cancel" class="btn btn-outline">Отмена</button>
-                    <button id="confirm-ok" class="btn btn-primary">Подтвердить</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Скрипты -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="script.js"></script>
-    
-    <!-- Инициализация при загрузке -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('ФанфикХаб загружен и готов к работе!');
-            
-            // Инициализация счетчиков
-            updateInputCounters();
-            
-            // Установка текущего года в футере
-            document.querySelector('.footer-bottom p').innerHTML = 
-                document.querySelector('.footer-bottom p').innerHTML.replace('2024', new Date().getFullYear());
-        });
-        
-        function updateInputCounters() {
-            const titleInput = document.getElementById('fanfic-title');
-            const authorInput = document.getElementById('author-name');
-            
-            if (titleInput) {
-                titleInput.addEventListener('input', function() {
-                    document.getElementById('title-counter').textContent = this.value.length;
-                });
-            }
-            
-            if (authorInput) {
-                authorInput.addEventListener('input', function() {
-                    document.getElementById('author-counter').textContent = this.value.length;
-                });
-            }
-        }
-    </script>
 </body>
 </html>
