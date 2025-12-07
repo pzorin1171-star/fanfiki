@@ -1,7 +1,7 @@
 {
   "name": "fanfic-hub",
   "version": "1.0.0",
-  "description": "Платформа для чтения и создания фанфиков с модерацией через Telegram",
+  "description": "Платформа для чтения и создания фанфиков",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -15,16 +15,12 @@
     "sqlite3": "^5.1.6",
     "node-telegram-bot-api": "^0.61.0",
     "axios": "^1.6.0",
-    "express-session": "^1.17.3",
-    "bcryptjs": "^2.4.3"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
   },
   "engines": {
     "node": ">=16.0.0"
-  },
-  "keywords": ["fanfic", "stories", "writing", "telegram", "moderation"],
-  "author": "FanficHub Team",
-  "license": "MIT"
+  }
 }
