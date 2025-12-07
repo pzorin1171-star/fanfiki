@@ -1,4 +1,4 @@
-// setup-webhook.js - запустить после деплоя
+// setup-webhook.js
 const axios = require('axios');
 require('dotenv').config();
 
@@ -16,7 +16,7 @@ async function setupWebhook() {
     return;
   }
   
-  console.log('Настраиваю webhook для Telegram бота...');
+  console.log('⚙️ Настраиваю webhook для Telegram бота...');
   console.log('Токен бота:', token.substring(0, 10) + '...');
   console.log('Webhook URL:', webhookUrl);
   
@@ -32,7 +32,9 @@ async function setupWebhook() {
       `https://api.telegram.org/bot${token}/getWebhookInfo`
     );
     
-    console.log('📊 Информация о webhook:', webhookInfo.data);
+    console.log('📊 Информация о webhook:');
+    console.log('- URL:', webhookInfo.data.result.url);
+    console.log('- Ошибок:', webhookInfo.data.result.last_error_message || 'Нет');
     
   } catch (error) {
     console.error('❌ Ошибка установки webhook:', error.message);
