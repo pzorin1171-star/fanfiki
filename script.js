@@ -1,7 +1,10 @@
-// Конфигурация API
+// ===== КОНФИГУРАЦИЯ =====
 const API_URL = window.location.origin;
+let currentPage = 1;
+let isLoading = false;
+let hasMore = true;
 
-// Элементы DOM
+// ===== ЭЛЕМЕНТЫ DOM =====
 const mainPage = document.getElementById('main-page');
 const createPage = document.getElementById('create-page');
 const createBtn = document.getElementById('create-btn');
@@ -16,7 +19,7 @@ const modalOkBtn = document.getElementById('modal-ok-btn');
 const viewModal = document.getElementById('view-modal');
 const closeModalBtn = document.querySelector('.close-modal');
 
-// Текущие данные
+// ===== ПЕРЕМЕННЫЕ С СОСТОЯНИЕМ =====
 let currentFanfics = [];
 let selectedTags = [];
 let chapters = [
@@ -28,18 +31,28 @@ let chapters = [
 ];
 let currentChapterIndex = 0;
 
-// Инициализация
+// ===== ИНИЦИАЛИЗАЦИЯ =====
 document.addEventListener('DOMContentLoaded', () => {
     loadFanfics();
     setupEventListeners();
     updateStats();
+    
+    // Проверяем параметры URL для открытия фанфика
+    const urlParams = new URLSearchParams(window.location.search);
+    const fanficId = urlParams.get('view');
+    if (fanficId) {
+        setTimeout(() => openFanfic(fanficId), 500);
+    }
 });
 
-// Настройка обработчиков событий
+// ===== НАСТРОЙКА ОБРАБОТЧИКОВ СОБЫТИЙ =====
 function setupEventListeners() {
+    // Навигация
     createBtn.addEventListener('click', () => {
         mainPage.classList.remove('active');
         createPage.classList.add('active');
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
     });
     
     backBtn.addEventListener('click', () => {
@@ -50,6 +63,7 @@ function setupEventListeners() {
         }
     });
     
+    // Фильтры
     searchInput.addEventListener('input', debounce(loadFanfics, 300));
     genreFilter.addEventListener('change', loadFanfics);
     ageFilter.addEventListener('change', loadFanfics);
@@ -81,6 +95,10 @@ function setupEventListeners() {
     
     closeModalBtn.addEventListener('click', () => {
         viewModal.style.display = 'none';
+        // Очищаем параметр view из URL
+        const url = new URL(window.location);
+        url.searchParams.delete('view');
+        window.history.replaceState({}, '', url);
     });
     
     window.addEventListener('click', (e) => {
@@ -95,32 +113,72 @@ function setupEventListeners() {
             viewModal.style.display = 'none';
         }
     });
+    
+    // Загрузка по прокрутке
+    window.addEventListener('scroll', handleScroll);
 }
 
-// Загрузка фанфиков
-async function loadFanfics() {
-    try {
+// ===== ЗАГРУЗКА ФАНФИКОВ =====
+async function loadFanfics(reset = true) {
+    if (isLoading) return;
+    
+    if (reset) {
+        currentPage = 1;
+        hasMore = true;
         fanficsContainer.innerHTML = '<div class="loading">Загрузка фанфиков...</div>';
-        
+    }
+    
+    if (!hasMore) return;
+    
+    isLoading = true;
+    
+    try {
         const params = new URLSearchParams({
             genre: genreFilter.value,
             age: ageFilter.value,
             search: searchInput.value,
-            status: 'approved'
+            status: 'approved',
+            page: currentPage
         });
         
         const response = await fetch(`${API_URL}/api/fanfics?${params}`);
         if (!response.ok) throw new Error('Ошибка сервера');
         
-        currentFanfics = await response.json();
+        const newFanfics = await response.json();
+        
+        if (reset) {
+            currentFanfics = newFanfics;
+        } else {
+            currentFanfics = [...currentFanfics, ...newFanfics];
+        }
+        
+        if (newFanfics.length < 20) {
+            hasMore = false;
+            document.getElementById('load-more-container')?.remove();
+        }
+        
         displayFanfics(currentFanfics);
+        currentPage++;
+        
     } catch (error) {
         console.error('Ошибка загрузки фанфиков:', error);
         fanficsContainer.innerHTML = '<div class="error">Ошибка загрузки фанфиков. Проверьте подключение к серверу.</div>';
+    } finally {
+        isLoading = false;
     }
 }
 
-// Отображение фанфиков
+function handleScroll() {
+    const scrollTop = document.documentElement.scrollTop;
+    const scrollHeight = document.documentElement.scrollHeight;
+    const clientHeight = document.documentElement.clientHeight;
+    
+    if (scrollTop + clientHeight >= scrollHeight - 100 && !isLoading && hasMore) {
+        loadFanfics(false);
+    }
+}
+
+// ===== ОТОБРАЖЕНИЕ ФАНФИКОВ =====
 function displayFanfics(fanfics) {
     if (!fanfics || fanfics.length === 0) {
         fanficsContainer.innerHTML = '<div class="no-results">Фанфиков не найдено</div>';
@@ -128,7 +186,7 @@ function displayFanfics(fanfics) {
     }
     
     fanficsContainer.innerHTML = fanfics.map(fanfic => `
-        <div class="fanfic-card">
+        <div class="fanfic-card" data-id="${fanfic.id}">
             <div class="fanfic-header">
                 <span class="age-badge">${fanfic.age_rating || '0+'}</span>
                 <span class="genre-badge">${fanfic.genre || 'Не указан'}</span>
@@ -150,11 +208,11 @@ function displayFanfics(fanfics) {
     `).join('');
 }
 
-// Открыть фанфик
+// ===== ОТКРЫТИЕ ФАНФИКА =====
 async function openFanfic(id) {
     try {
         const response = await fetch(`${API_URL}/api/fanfics/${id}`);
-        if (!response.ok) throw new Error('Фанфик не найден');
+        if (!response.ok) throw new Error('Фанфик не найден или еще не одобрен');
         
         const fanfic = await response.json();
         
@@ -162,70 +220,89 @@ async function openFanfic(id) {
         const tags = typeof fanfic.tags === 'string' ? JSON.parse(fanfic.tags) : fanfic.tags || [];
         const fanficChapters = typeof fanfic.chapters === 'string' ? JSON.parse(fanfic.chapters) : fanfic.chapters || [];
         
+        let chaptersHTML = '';
+        if (fanficChapters.length > 1) {
+            chaptersHTML = `
+                <div class="chapters-list">
+                    <h3><i class="fas fa-list"></i> Содержание (${fanficChapters.length} глав)</h3>
+                    ${fanficChapters.map((chapter, index) => `
+                        <div class="chapter-item" onclick="showChapterInModal(${index}, ${JSON.stringify(fanficChapters)})">
+                            ${chapter.title}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
         document.getElementById('fanfic-content').innerHTML = `
             <div class="view-fanfic">
                 <h2>${fanfic.title}</h2>
                 <div class="fanfic-meta">
                     <span><strong>Автор:</strong> ${fanfic.author}</span>
-                    <span><strong>Жанр:</strong> ${fanfic.genre}</span>
-                    <span><strong>Рейтинг:</strong> ${fanfic.age_rating}</span>
-                    <span><strong>Дата:</strong> ${new Date(fanfic.createdAt).toLocaleDateString('ru-RU')}</span>
+                    <span><strong>Жанр:</strong> ${fanfic.genre || 'Не указан'}</span>
+                    <span><strong>Рейтинг:</strong> ${fanfic.age_rating || '0+'}</span>
+                    <span><strong>Дата публикации:</strong> ${new Date(fanfic.createdAt).toLocaleDateString('ru-RU')}</span>
                 </div>
                 
                 <div class="fanfic-tags">
                     ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
                 </div>
                 
-                ${fanficChapters.length > 1 ? `
-                <div class="chapters-list">
-                    <h3><i class="fas fa-list"></i> Содержание</h3>
-                    ${fanficChapters.map((chapter, index) => `
-                        <div class="chapter-item" onclick="showChapter(this, ${index})">
-                            ${chapter.title}
-                        </div>
-                    `).join('')}
-                </div>
-                ` : ''}
+                ${chaptersHTML}
                 
-                <div class="chapter-content">
+                <div class="chapter-content" id="current-chapter">
                     <h3>${fanficChapters[0]?.title || 'Глава 1'}</h3>
                     <div class="content-text">
-                        ${formatContent(fanficChapters[0]?.content || '')}
+                        ${formatContent(fanficChapters[0]?.content || fanfic.content || 'Содержание отсутствует')}
                     </div>
                 </div>
                 
                 <div class="fanfic-footer">
                     <span><i class="fas fa-eye"></i> ${fanfic.views || 0} просмотров</span>
+                    <span><i class="fas fa-heart"></i> ${fanfic.likes || 0} лайков</span>
                     <button class="like-btn" onclick="likeFanfic('${fanfic.id}')">
-                        <i class="fas fa-heart"></i> Нравится (${fanfic.likes || 0})
+                        <i class="fas fa-heart"></i> Мне нравится
                     </button>
                 </div>
             </div>
         `;
         
         viewModal.style.display = 'block';
+        
+        // Обновляем URL для возможности поделиться ссылкой
+        const url = new URL(window.location);
+        url.searchParams.set('view', id);
+        window.history.replaceState({}, '', url);
+        
     } catch (error) {
-        alert('Ошибка загрузки фанфика: ' + error.message);
+        console.error('Ошибка загрузки фанфика:', error);
+        document.getElementById('fanfic-content').innerHTML = `
+            <div class="error">
+                <h3>Ошибка загрузки фанфика</h3>
+                <p>${error.message}</p>
+                <p>Возможно, фанфик еще не прошел модерацию или был удален.</p>
+                <button onclick="viewModal.style.display='none'" class="modal-btn">Закрыть</button>
+            </div>
+        `;
+        viewModal.style.display = 'block';
     }
 }
 
 window.openFanfic = openFanfic;
 
-// Показать главу
-window.showChapter = (element, index) => {
-    document.querySelectorAll('.chapters-list .chapter-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    element.classList.add('active');
+// ===== ОТОБРАЖЕНИЕ ГЛАВЫ В МОДАЛЬНОМ ОКНЕ =====
+window.showChapterInModal = function(index, chapters) {
+    const chapter = chapters[index];
+    document.querySelector('#current-chapter h3').textContent = chapter.title;
+    document.querySelector('#current-chapter .content-text').innerHTML = formatContent(chapter.content);
     
-    const fanfic = currentFanfics.find(f => f.id === element.dataset.id);
-    if (fanfic && fanfic.chapters[index]) {
-        document.querySelector('.chapter-content h3').textContent = fanfic.chapters[index].title;
-        document.querySelector('.chapter-content .content-text').innerHTML = formatContent(fanfic.chapters[index].content);
-    }
+    // Подсвечиваем активную главу
+    document.querySelectorAll('.chapters-list .chapter-item').forEach((item, i) => {
+        item.classList.toggle('active', i === index);
+    });
 };
 
-// Отправить фанфик
+// ===== ОТПРАВКА ФАНФИКА =====
 async function submitFanfic() {
     const title = document.getElementById('fanfic-title').value.trim();
     const author = document.getElementById('author-name').value.trim();
@@ -295,7 +372,7 @@ async function submitFanfic() {
     }
 }
 
-// Вспомогательные функции
+// ===== УПРАВЛЕНИЕ ТЕГАМИ =====
 function toggleTag(tag) {
     const index = selectedTags.indexOf(tag);
     if (index === -1) {
@@ -332,6 +409,7 @@ function updateSelectedTags() {
 
 window.toggleTag = toggleTag;
 
+// ===== УПРАВЛЕНИЕ ГЛАВАМИ =====
 function addChapter() {
     const chapterCount = chapters.length + 1;
     const chapterTitle = `Глава ${chapterCount}`;
@@ -410,15 +488,36 @@ function updateChapterTitle() {
     updateChaptersList();
 }
 
+// ===== СТАТИСТИКА РЕДАКТОРА =====
 function updateStats() {
     const content = document.getElementById('content-editor').value;
     const charCount = content.length;
     const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
+    const readTime = Math.ceil(wordCount / 200); // 200 слов в минуту
     
     document.getElementById('char-count').textContent = `${charCount} символов`;
     document.getElementById('word-count').textContent = `${wordCount} слов`;
 }
 
+// ===== ЛАЙК ФАНФИКА =====
+async function likeFanfic(fanficId) {
+    try {
+        const response = await fetch(`${API_URL}/api/fanfics/${fanficId}/like`, {
+            method: 'POST'
+        });
+        if (response.ok) {
+            const result = await response.json();
+            document.querySelector('.like-btn').innerHTML = 
+                `<i class="fas fa-heart"></i> Нравится (${result.likes})`;
+        }
+    } catch (error) {
+        console.error('Ошибка лайка:', error);
+    }
+}
+
+window.likeFanfic = likeFanfic;
+
+// ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
 function resetForm() {
     document.getElementById('fanfic-title').value = '';
     document.getElementById('author-name').value = '';
@@ -446,21 +545,6 @@ function formatContent(content) {
         .join('');
 }
 
-async function likeFanfic(fanficId) {
-    try {
-        const response = await fetch(`${API_URL}/api/fanfics/${fanficId}/like`, {
-            method: 'POST'
-        });
-        if (response.ok) {
-            const result = await response.json();
-            document.querySelector('.like-btn').innerHTML = 
-                `<i class="fas fa-heart"></i> Нравится (${result.likes})`;
-        }
-    } catch (error) {
-        console.error('Ошибка лайка:', error);
-    }
-}
-
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -473,8 +557,21 @@ function debounce(func, wait) {
     };
 }
 
-// Экспортируем функции для использования в HTML
-window.showChapter = showChapter;
+// ===== ОБНОВЛЕНИЕ СТАТИСТИКИ САЙТА =====
+async function updateStats() {
+    try {
+        const response = await fetch(`${API_URL}/api/stats`);
+        if (response.ok) {
+            const data = await response.json();
+            // Здесь можно обновить счетчики на главной странице
+            // Например: document.getElementById('total-fanfics').textContent = data.total;
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки статистики:', error);
+    }
+}
+
+// ===== ЭКСПОРТ ДЛЯ HTML =====
+window.showChapter = showChapterInModal;
 window.deleteChapter = deleteChapter;
 window.switchChapter = switchChapter;
-window.likeFanfic = likeFanfic;
