@@ -36,16 +36,15 @@ services:
       
       - key: SESSION_SECRET
         generateValue: true
+      
+      - key: BCRYPT_SALT_ROUNDS
+        value: "10"
     
     # Настройки инстанса
     instanceType: free
     numInstances: 1
-    healthCheckPath: /ping  # Изменено с /api/health на /ping
+    healthCheckPath: /ping
     autoDeploy: true
-    
-    # Domains (опционально)
-    # domains:
-    #   - your-domain.com
     
     # Дисковое пространство
     disk:
