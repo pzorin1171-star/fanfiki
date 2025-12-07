@@ -575,3 +575,9 @@ async function updateStats() {
 window.showChapter = showChapterInModal;
 window.deleteChapter = deleteChapter;
 window.switchChapter = switchChapter;
+// Автоматический пинг каждые 5 минут (только на Render)
+if (window.location.hostname.includes('onrender.com')) {
+  setInterval(() => {
+    fetch('/ping').catch(() => {});
+  }, 5 * 60 * 1000); // 5 минут
+}
