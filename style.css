@@ -1,4 +1,4 @@
-/* Общие стили */
+/* ===== БАЗОВЫЕ СТИЛИ ===== */
 * {
     margin: 0;
     padding: 0;
@@ -6,29 +6,55 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+:root {
+    --primary-color: #6d28d9;
+    --primary-dark: #5b21b6;
+    --primary-light: #8b5cf6;
+    --secondary-color: #f59e0b;
+    --bg-dark: #0f172a;
+    --bg-card: #1e293b;
+    --bg-light: #f8fafc;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-light: #f1f5f9;
+    --border-color: #e2e8f0;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --transition: all 0.3s ease;
+}
+
 body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 20px;
+    color: var(--text-primary);
+    line-height: 1.6;
 }
 
 .container {
     max-width: 1400px;
     margin: 0 auto;
+    position: relative;
 }
 
+/* ===== КОМПОНЕНТЫ СТРАНИЦ ===== */
 .page {
     display: none;
     background: white;
-    border-radius: 20px;
+    border-radius: var(--radius);
     padding: 30px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    min-height: 90vh;
+    box-shadow: var(--shadow-lg);
+    min-height: calc(100vh - 40px);
+    animation: fadeIn 0.5s ease;
 }
 
 .page.active {
     display: block;
-    animation: fadeIn 0.5s ease;
 }
 
 @keyframes fadeIn {
@@ -36,57 +62,67 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Шапка */
+/* ===== ШАПКА И НАВИГАЦИЯ ===== */
 header {
     text-align: center;
     margin-bottom: 40px;
     padding-bottom: 20px;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 2px solid var(--border-color);
 }
 
 h1 {
-    color: #333;
+    color: var(--text-primary);
     font-size: 2.8rem;
     margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
 }
 
 h1 i {
-    color: #667eea;
-    margin-right: 15px;
+    color: var(--primary-color);
 }
 
 .subtitle {
-    color: #666;
+    color: var(--text-secondary);
     font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
-/* Фильтры */
+/* ===== ФИЛЬТРЫ ===== */
 .filters {
     display: flex;
     gap: 15px;
     margin-bottom: 30px;
     flex-wrap: wrap;
+    background: var(--bg-light);
+    padding: 20px;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow);
 }
 
 .filters input,
 .filters select {
     padding: 12px 20px;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
     font-size: 16px;
-    transition: all 0.3s;
+    transition: var(--transition);
     flex: 1;
     min-width: 200px;
+    background: white;
 }
 
 .filters input:focus,
 .filters select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-/* Сетка фанфиков */
+/* ===== СЕТКА ФАНФИКОВ ===== */
 .fanfics-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -96,19 +132,31 @@ h1 i {
 
 .fanfic-card {
     background: white;
-    border-radius: 15px;
+    border-radius: var(--radius);
     padding: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
     border: 2px solid transparent;
     display: flex;
     flex-direction: column;
+    position: relative;
+    overflow: hidden;
 }
 
 .fanfic-card:hover {
     transform: translateY(-10px);
-    border-color: #667eea;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-lg);
+}
+
+.fanfic-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
 }
 
 .fanfic-header {
@@ -118,34 +166,44 @@ h1 i {
 }
 
 .age-badge {
-    background: #ff6b6b;
+    background: var(--danger-color);
     color: white;
     padding: 5px 12px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .genre-badge {
-    background: #4ecdc4;
+    background: var(--success-color);
     color: white;
     padding: 5px 12px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .fanfic-title {
     font-size: 1.3rem;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 10px;
     flex-grow: 1;
+    line-height: 1.4;
 }
 
 .fanfic-author {
-    color: #666;
+    color: var(--text-secondary);
     margin-bottom: 15px;
     font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .fanfic-tags {
@@ -156,33 +214,45 @@ h1 i {
 }
 
 .tag {
-    background: #f0f0f0;
+    background: var(--bg-light);
     padding: 4px 10px;
     border-radius: 15px;
     font-size: 0.8rem;
-    color: #666;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
 }
 
 .fanfic-stats {
     display: flex;
     justify-content: space-between;
-    color: #888;
+    color: var(--text-secondary);
     font-size: 0.9rem;
     margin-bottom: 15px;
     padding-top: 10px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--border-color);
+}
+
+.fanfic-stats span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .read-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
     color: white;
     border: none;
     padding: 12px;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: 16px;
     font-weight: 600;
-    transition: all 0.3s;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: auto;
 }
 
 .read-btn:hover {
@@ -190,7 +260,7 @@ h1 i {
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
 }
 
-/* Кнопка создания */
+/* ===== КНОПКА СОЗДАНИЯ ===== */
 .floating-button-container {
     position: fixed;
     bottom: 40px;
@@ -207,8 +277,8 @@ h1 i {
     font-size: 18px;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s;
+    box-shadow: var(--shadow-lg);
+    transition: var(--transition);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -219,31 +289,37 @@ h1 i {
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
 }
 
-/* Страница создания */
+/* ===== СТРАНИЦА СОЗДАНИЯ ===== */
 .create-header {
     display: flex;
     align-items: center;
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 2px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .back-btn {
-    background: #667eea;
+    background: var(--primary-color);
     color: white;
     border: none;
     padding: 10px 20px;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    margin-right: 20px;
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.3s;
+    transition: var(--transition);
 }
 
 .back-btn:hover {
-    background: #5a6fd8;
+    background: var(--primary-dark);
+}
+
+.create-header h2 {
+    flex: 1;
+    color: var(--text-primary);
 }
 
 .create-container {
@@ -252,12 +328,21 @@ h1 i {
     min-height: 70vh;
 }
 
+@media (max-width: 1200px) {
+    .create-container {
+        flex-direction: column;
+    }
+}
+
+/* ===== БОКОВАЯ ПАНЕЛЬ СОЗДАНИЯ ===== */
 .sidebar {
     flex: 0 0 350px;
-    background: #f8f9fa;
+    background: var(--bg-light);
     padding: 25px;
-    border-radius: 15px;
-    border: 2px solid #e9ecef;
+    border-radius: var(--radius);
+    border: 2px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
 }
 
 .editor-container {
@@ -273,7 +358,7 @@ h1 i {
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    color: #333;
+    color: var(--text-primary);
     font-weight: 600;
 }
 
@@ -281,19 +366,21 @@ h1 i {
 .form-group select {
     width: 100%;
     padding: 12px 15px;
-    border: 2px solid #dee2e6;
-    border-radius: 10px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
     font-size: 16px;
-    transition: all 0.3s;
+    transition: var(--transition);
+    background: white;
 }
 
 .form-group input:focus,
 .form-group select:focus {
-    border-color: #667eea;
+    border-color: var(--primary-color);
     outline: none;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+/* ===== ТЕГИ ===== */
 .tags-container {
     display: flex;
     flex-wrap: wrap;
@@ -303,23 +390,23 @@ h1 i {
 
 .tag-btn {
     background: white;
-    border: 2px solid #dee2e6;
+    border: 2px solid var(--border-color);
     padding: 8px 15px;
     border-radius: 20px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: var(--transition);
     font-size: 14px;
 }
 
 .tag-btn:hover {
-    border-color: #667eea;
+    border-color: var(--primary-color);
     background: #f0f7ff;
 }
 
 .tag-btn.active {
-    background: #667eea;
+    background: var(--primary-color);
     color: white;
-    border-color: #667eea;
+    border-color: var(--primary-color);
 }
 
 .selected-tags {
@@ -327,10 +414,11 @@ h1 i {
     flex-wrap: wrap;
     gap: 10px;
     min-height: 40px;
+    margin-bottom: 10px;
 }
 
 .selected-tag {
-    background: #667eea;
+    background: var(--primary-color);
     color: white;
     padding: 6px 12px;
     border-radius: 20px;
@@ -343,20 +431,30 @@ h1 i {
 .selected-tag i {
     cursor: pointer;
     font-size: 12px;
+    opacity: 0.8;
 }
 
+.selected-tag i:hover {
+    opacity: 1;
+}
+
+/* ===== КНОПКА ОТПРАВКИ ===== */
 .submit-btn {
     width: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
     color: white;
     border: none;
     padding: 15px;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     font-size: 18px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: var(--transition);
     margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
 .submit-btn:hover {
@@ -364,13 +462,19 @@ h1 i {
     box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
 }
 
+.submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .info-box {
     margin-top: 25px;
     padding: 15px;
     background: #e7f4ff;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     border-left: 5px solid #2196f3;
-    color: #333;
+    color: var(--text-primary);
     font-size: 14px;
 }
 
@@ -379,51 +483,62 @@ h1 i {
     margin-right: 10px;
 }
 
-/* Редактор */
+/* ===== РЕДАКТОР ===== */
 .chapter-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
     padding-bottom: 15px;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 2px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .chapter-title-container {
     flex: 1;
+    min-width: 250px;
 }
 
 .chapter-title-container input {
     width: 100%;
     padding: 10px;
-    border: 2px solid #dee2e6;
-    border-radius: 8px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
     font-size: 16px;
 }
 
 .add-chapter-btn {
-    background: #4caf50;
+    background: var(--success-color);
     color: white;
     border: none;
     padding: 10px 20px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
+    transition: var(--transition);
+}
+
+.add-chapter-btn:hover {
+    background: #0da271;
 }
 
 .chapters-sidebar {
     flex: 0 0 250px;
-    background: #f8f9fa;
+    background: var(--bg-light);
     padding: 20px;
-    border-radius: 10px;
-    border: 2px solid #e9ecef;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border-color);
 }
 
 .chapters-sidebar h3 {
     margin-bottom: 20px;
-    color: #333;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 #chapters-list {
@@ -438,28 +553,33 @@ h1 i {
     align-items: center;
     padding: 12px 15px;
     background: white;
-    border: 2px solid #dee2e6;
-    border-radius: 8px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: all 0.3s;
+    transition: var(--transition);
 }
 
 .chapter-item:hover {
-    border-color: #667eea;
+    border-color: var(--primary-color);
 }
 
 .chapter-item.active {
-    background: #667eea;
+    background: var(--primary-color);
     color: white;
-    border-color: #667eea;
+    border-color: var(--primary-color);
 }
 
 .delete-chapter-btn {
     background: transparent;
     border: none;
-    color: #ff6b6b;
+    color: var(--danger-color);
     cursor: pointer;
     padding: 5px;
+    opacity: 0.7;
+}
+
+.delete-chapter-btn:hover {
+    opacity: 1;
 }
 
 .editor-main {
@@ -471,28 +591,31 @@ h1 i {
 #content-editor {
     flex: 1;
     padding: 20px;
-    border: 2px solid #dee2e6;
-    border-radius: 10px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
     font-size: 16px;
     line-height: 1.6;
     resize: none;
     margin-bottom: 15px;
     font-family: 'Georgia', serif;
+    transition: var(--transition);
 }
 
 #content-editor:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .editor-stats {
     display: flex;
     justify-content: space-between;
-    color: #666;
+    color: var(--text-secondary);
     font-size: 14px;
+    padding: 10px 0;
 }
 
-/* Модальные окна */
+/* ===== МОДАЛЬНЫЕ ОКНА ===== */
 .modal {
     display: none;
     position: fixed;
@@ -503,29 +626,30 @@ h1 i {
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     animation: fadeIn 0.3s;
+    overflow-y: auto;
 }
 
 .modal-content {
     background: white;
     margin: 10% auto;
     padding: 30px;
-    border-radius: 15px;
+    border-radius: var(--radius);
     width: 90%;
     max-width: 500px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-lg);
     position: relative;
     animation: slideIn 0.3s;
-}
-
-@keyframes slideIn {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
 }
 
 .large-modal {
     max-width: 900px;
     max-height: 80vh;
     overflow-y: auto;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 .close-modal {
@@ -536,33 +660,49 @@ h1 i {
     cursor: pointer;
     background: none;
     border: none;
-    color: #666;
+    color: var(--text-secondary);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.close-modal:hover {
+    background: var(--bg-light);
 }
 
 .modal-buttons {
     display: flex;
     justify-content: flex-end;
     margin-top: 25px;
+    gap: 15px;
 }
 
 .modal-btn {
-    background: #667eea;
+    background: var(--primary-color);
     color: white;
     border: none;
     padding: 12px 30px;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: 16px;
     font-weight: 600;
+    transition: var(--transition);
 }
 
-/* Стили для просмотра фанфика */
+.modal-btn:hover {
+    background: var(--primary-dark);
+}
+
+/* ===== ПРОСМОТР ФАНФИКА ===== */
 .view-fanfic {
     padding: 20px;
 }
 
 .view-fanfic h2 {
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 20px;
     font-size: 2rem;
 }
@@ -572,64 +712,124 @@ h1 i {
     gap: 25px;
     margin: 20px 0;
     padding: 15px;
-    background: #f8f9fa;
-    border-radius: 10px;
+    background: var(--bg-light);
+    border-radius: var(--radius-sm);
     flex-wrap: wrap;
 }
 
 .fanfic-meta span {
-    color: #555;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+}
+
+.fanfic-meta strong {
+    color: var(--text-primary);
+    margin-bottom: 5px;
+    font-size: 0.9rem;
 }
 
 .content-text {
     line-height: 1.8;
     font-size: 18px;
     margin: 30px 0;
-    color: #333;
+    color: var(--text-primary);
     font-family: 'Georgia', serif;
+    white-space: pre-line;
 }
 
 .content-text p {
-    margin-bottom: 20px;
+    margin-bottom: 1.5em;
+    text-align: justify;
 }
 
-/* Загрузка */
-.loading {
+.chapters-list {
+    margin: 20px 0;
+    padding: 15px;
+    background: var(--bg-light);
+    border-radius: var(--radius-sm);
+}
+
+.chapter-item {
+    padding: 12px 15px;
+    margin: 5px 0;
+    background: white;
+    border-left: 4px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.chapter-item:hover {
+    background: #f5f5f5;
+    border-left-color: var(--primary-color);
+    transform: translateX(5px);
+}
+
+.chapter-item.active {
+    background: #f0f7ff;
+    border-left-color: var(--primary-color);
+    font-weight: bold;
+}
+
+.fanfic-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.like-btn {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+}
+
+.like-btn:hover {
+    background: #dc2626;
+}
+
+/* ===== СОСТОЯНИЯ ===== */
+.loading, .error, .no-results {
     text-align: center;
     padding: 50px;
-    color: #666;
-    font-size: 18px;
     grid-column: 1 / -1;
+    color: var(--text-secondary);
+    font-size: 18px;
 }
 
 .error {
-    text-align: center;
-    padding: 50px;
-    color: #ff6b6b;
-    font-size: 18px;
-    grid-column: 1 / -1;
+    color: var(--danger-color);
 }
 
-.no-results {
-    text-align: center;
-    padding: 50px;
-    color: #666;
-    font-size: 18px;
-    grid-column: 1 / -1;
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    margin-left: 10px;
+    animation: spin 1s linear infinite;
 }
 
-/* Адаптивность */
-@media (max-width: 1200px) {
-    .create-container {
-        flex-direction: column;
-    }
-    
-    .sidebar {
-        flex: none;
-        width: 100%;
-    }
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
+/* ===== АДАПТИВНОСТЬ ===== */
 @media (max-width: 768px) {
     body {
         padding: 10px;
@@ -674,69 +874,37 @@ h1 i {
     .modal-content {
         width: 95%;
         margin: 5% auto;
-        /* Темная тема */
-:root {
-    --primary-color: #6d28d9;
-    --primary-dark: #5b21b6;
-    --secondary-color: #f59e0b;
-    --bg-dark: #0f172a;
-    --bg-card: #1e293b;
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --border-color: #334155;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --danger-color: #ef4444;
-}
-
-/* Современные компоненты */
-.fanfic-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.fanfic-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    border-color: var(--primary-color);
-}
-
-/* Анимации */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Кастомные скроллбары */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--bg-dark);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 4px;
-}
-
-/* Адаптивность */
-@media (max-width: 768px) {
-    .filters-grid {
-        grid-template-columns: 1fr;
+        padding: 20px;
     }
     
-    .create-container {
+    .fanfic-footer {
         flex-direction: column;
+        align-items: stretch;
+        text-align: center;
     }
     
-    .modal-container {
-        width: 95%;
-        margin: 10px;
+    .like-btn {
+        align-self: center;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .create-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .back-btn {
+        align-self: flex-start;
+    }
+    
+    .sidebar {
+        padding: 15px;
     }
 }
